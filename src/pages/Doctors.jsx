@@ -1,219 +1,212 @@
-import React, { useState } from "react";
-import Sidebar from "../components/Sidebar.jsx";
-import "./../styles/doctor.css";
+import React, { useState } from 'react';
 
 const Doctors = () => {
   const [showModal, setShowModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-
+  const [searchTerm, setSearchTerm] = useState('');
   const [doctors, setDoctors] = useState([
-    {
-      id: "2dbb7b",
-      name: "Dr. caaliyo cali",
-      specialization: "Neurology",
-      email: "caaliyo@gmail.com",
-      phone: "612534253452",
-      status: "Active",
-    },
-    {
-      id: "643488",
-      name: "Dr. ahmed",
-      specialization: "Dentistry",
-      email: "ahmed@gmail.com",
-      phone: "61253253452",
-      status: "Active",
-    },
-    {
-      id: "643303",
-      name: "Dr. xasan maxamuud",
-      specialization: "Psychiatry",
-      email: "xasan1@gmail.com",
-      phone: "6152435234",
-      status: "Active",
-    },
+    { id: 1, name: 'Dr. Sarah Johnson', specialization: 'Cardiology', email: 'sarah.johnson@medicare.com', phone: '(555) 123-4567', status: 'Active', experience: '12 years' },
+    { id: 2, name: 'Dr. Michael Chen', specialization: 'Neurology', email: 'michael.chen@medicare.com', phone: '(555) 234-5678', status: 'Active', experience: '8 years' },
+    { id: 3, name: 'Dr. Emily Rodriguez', specialization: 'Pediatrics', email: 'emily.rodriguez@medicare.com', phone: '(555) 345-6789', status: 'Active', experience: '15 years' },
   ]);
 
   const [formData, setFormData] = useState({
-    name: "",
-    specialization: "",
-    email: "",
-    phone: "",
+    name: '', specialization: '', email: '', phone: '', experience: ''
   });
-
-  const toggleModal = () => {
-    setShowModal(!showModal);
-    setFormData({ name: "", specialization: "", email: "", phone: "" });
-  };
 
   const handleAddDoctor = (e) => {
     e.preventDefault();
     const newDoctor = {
       ...formData,
-      id: Math.random().toString(36).substr(2, 6),
-      status: "Active",
+      id: doctors.length + 1,
+      status: 'Active'
     };
-    setDoctors([newDoctor, ...doctors]);
-    toggleModal();
+    setDoctors([...doctors, newDoctor]);
+    setShowModal(false);
+    setFormData({ name: '', specialization: '', email: '', phone: '', experience: '' });
   };
 
-  const filteredDoctors = doctors.filter(
-    (doc) =>
-      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.specialization.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredDoctors = doctors.filter(doc =>
+    doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doc.specialization.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const specializations = ['Cardiology', 'Neurology', 'Pediatrics', 'Orthopedics', 'Dermatology', 'Psychiatry'];
+
   return (
-    <div className="dashboard-layout">
-      {/* SIDEBAR FIXED ON THE LEFT */}
-      <Sidebar />
-
-      <main className="main-content">
-        <header className="content-header">
-          <div>
-            <h1>Doctors Management</h1>
-            <p>Manage all doctors in the system</p>
+    <>
+      <div className="page-header">
+        <div className="header-stats">
+          <div className="header-stat">
+            <span className="stat-number">{doctors.length}</span>
+            <span className="stat-label">Active Doctors</span>
           </div>
-          <button className="add-doctor-btn" onClick={toggleModal}>
-            <span className="material-symbols-outlined">add</span> Add New
-            Doctor
-          </button>
-        </header>
-
-        <section className="filter-bar">
-          <div className="search-box">
-            <span className="material-symbols-outlined">search</span>
-            <input
-              type="text"
-              placeholder="Search by name, email, or spec..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="header-stat">
+            <span className="stat-number">{specializations.length}</span>
+            <span className="stat-label">Specializations</span>
           </div>
-          <select>
-            <option>All Specializations</option>
-          </select>
-          <select>
-            <option>All Status</option>
-          </select>
-          <select>
-            <option>Name (A-Z)</option>
-          </select>
-        </section>
-
-        <div className="table-container">
-          <table className="doctors-table">
-            <thead>
-              <tr>
-                <th>Doctor</th>
-                <th>Specialization</th>
-                <th>Contact</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredDoctors.map((doc) => (
-                <tr key={doc.id}>
-                  <td>
-                    <div className="doc-info">
-                      <div className="doc-avatar">
-                        {doc.name.replace("Dr. ", "").charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="doc-name">{doc.name}</div>
-                        <div className="doc-id">ID: {doc.id}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span className="spec-badge">{doc.specialization}</span>
-                  </td>
-                  <td>
-                    <div className="contact-info">
-                      <div>
-                        <span className="material-symbols-outlined">mail</span>{" "}
-                        {doc.email}
-                      </div>
-                      <div>
-                        <span className="material-symbols-outlined">call</span>{" "}
-                        {doc.phone}
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span className="status-active">{doc.status}</span>
-                  </td>
-                  <td className="actions">
-                    <span className="material-symbols-outlined view">
-                      visibility
-                    </span>
-                    <span className="material-symbols-outlined edit">edit</span>
-                    <span
-                      className="material-symbols-outlined delete"
-                      onClick={() =>
-                        setDoctors(doctors.filter((d) => d.id !== doc.id))
-                      }
-                    >
-                      delete
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
-      </main>
+      </div>
+
+      <div className="filter-bar">
+        <div className="search-bar">
+          <span className="material-symbols-outlined">search</span>
+          <input
+            type="text"
+            placeholder="Search by name or specialization..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="filter-actions">
+          <select className="filter-select">
+            <option>All Specializations</option>
+            {specializations.map(spec => (
+              <option key={spec}>{spec}</option>
+            ))}
+          </select>
+          <button className="add-btn" onClick={() => setShowModal(true)}>
+            <span className="material-symbols-outlined">add</span>
+            Add Doctor
+          </button>
+        </div>
+      </div>
+
+      <div className="doctors-grid">
+        {filteredDoctors.map((doctor) => (
+          <div key={doctor.id} className="doctor-card">
+            <div className="doctor-card-header">
+              <div className="doctor-avatar large">
+                {doctor.name.replace('Dr. ', '').charAt(0)}
+              </div>
+              <div className="doctor-status">
+                <span className={`status-badge status-${doctor.status.toLowerCase()}`}>
+                  <span className="status-dot"></span>
+                  {doctor.status}
+                </span>
+              </div>
+            </div>
+            <div className="doctor-card-body">
+              <h3 className="doctor-name">{doctor.name}</h3>
+              <span className="doctor-specialty">{doctor.specialization}</span>
+              <div className="doctor-details">
+                <div className="detail-item">
+                  <span className="material-symbols-outlined">mail</span>
+                  <span>{doctor.email}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="material-symbols-outlined">call</span>
+                  <span>{doctor.phone}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="material-symbols-outlined">work_history</span>
+                  <span>{doctor.experience} experience</span>
+                </div>
+              </div>
+            </div>
+            <div className="doctor-card-footer">
+              <button className="action-btn edit">
+                <span className="material-symbols-outlined">edit</span>
+              </button>
+              <button className="action-btn view">
+                <span className="material-symbols-outlined">visibility</span>
+              </button>
+              <button
+                className="action-btn delete"
+                onClick={() => setDoctors(doctors.filter(d => d.id !== doctor.id))}
+              >
+                <span className="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2>Add New Doctor</h2>
-            <form onSubmit={handleAddDoctor}>
-              <input
-                type="text"
-                placeholder="Full Name"
-                required
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-              />
-              <input
-                type="text"
-                placeholder="Specialization"
-                required
-                onChange={(e) =>
-                  setFormData({ ...formData, specialization: e.target.value })
-                }
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                required
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-              />
-              <input
-                type="text"
-                placeholder="Phone"
-                required
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-              />
+            <div className="modal-header">
+              <div className="modal-header-icon">
+                <span className="material-symbols-outlined">medical_services</span>
+              </div>
+              <h2>Add New Doctor</h2>
+              <button className="modal-close" onClick={() => setShowModal(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleAddDoctor} className="modal-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input
+                    type="text"
+                    placeholder="Dr. John Doe"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Specialization</label>
+                  <select
+                    required
+                    value={formData.specialization}
+                    onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                  >
+                    <option value="">Select Specialization</option>
+                    {specializations.map(spec => (
+                      <option key={spec}>{spec}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="doctor@medicare.com"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Phone Number</label>
+                  <input
+                    type="tel"
+                    placeholder="+1 (555) 000-0000"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group full-width">
+                  <label>Years of Experience</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., 10 years"
+                    required
+                    value={formData.experience}
+                    onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                  />
+                </div>
+              </div>
               <div className="modal-actions">
-                <button type="button" onClick={toggleModal}>
+                <button type="button" className="cancel-btn" onClick={() => setShowModal(false)}>
                   Cancel
                 </button>
                 <button type="submit" className="save-btn">
-                  Save Doctor
+                  <span className="material-symbols-outlined">save</span>
+                  Add Doctor
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

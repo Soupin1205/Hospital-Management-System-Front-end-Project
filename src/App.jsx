@@ -1,33 +1,84 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import Dashboard from "./pages/Dashboard.jsx";
-import Login from "./pages/Login.jsx";
-import Doctors from "./pages/Doctors.jsx";
-import Patients from "./pages/Patients.jsx";
-import Appointments from "./pages/Appointments.jsx"; // 1. Import the new page
-import Layout from "./components/Layout";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Doctors from './pages/Doctors';
+import Patients from './pages/Patients';
+import Appointments from './pages/Appointments';
+import Staff from './pages/Staff';
+import Billing from './pages/Billing';
+import Settings from './pages/Settings';
+import './styles/global.css';
+import './styles/components.css';
+
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  return isAuthenticated ? children : <Navigate to="/" />;
+};
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Route */}
         <Route path="/" element={<Login />} />
+        
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Dashboard />} />
+        </Route>
 
-        {/* 2. Routes that include the Sidebar/Layout */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/doctors" element={<Doctors />} />
-        <Route path="/patients" element={<Patients />} />
+        <Route path="/patients" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Patients />} />
+        </Route>
 
-        {/* 3. ADD THIS ROUTE to fix the error */}
-        <Route path="/appointments" element={<Appointments />} />
+        <Route path="/doctors" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Doctors />} />
+        </Route>
 
-        {/* 4. Catch-all: Redirect unknown routes to Dashboard or Login */}
+        <Route path="/appointments" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Appointments />} />
+        </Route>
+
+        <Route path="/staff" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Staff />} />
+        </Route>
+
+        <Route path="/billing" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Billing />} />
+        </Route>
+
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Settings />} />
+        </Route>
+
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </Router>

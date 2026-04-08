@@ -1,290 +1,219 @@
-import React, { useState } from "react";
-import Sidebar from "../components/Sidebar.jsx";
-import "./../styles/doctor.css";
+import React, { useState } from 'react';
 
 const Patients = () => {
-  // --- 1. STATE ---
   const [showModal, setShowModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [patients, setPatients] = useState([
-    {
-      id: "247600af",
-      name: "cali",
-      email: "calikulane@gmail.com",
-      phone: "612543524352",
-      status: "Active",
-      date: "Dec 20, 2025",
-    },
-    {
-      id: "342b033e",
-      name: "muno cali",
-      email: "muno@gmail.com",
-      phone: "6123532425",
-      status: "Active",
-      date: "Dec 16, 2025",
-    },
-    {
-      id: "44549702",
-      name: "mohamed ahmed",
-      email: "mohamed@gmail.com",
-      phone: "61368255678",
-      status: "Active",
-      date: "Dec 15, 2025",
-    },
+    { id: 1, name: 'Sophie Bennett', email: 'sophie@email.com', phone: '(555) 123-4567', disease: 'Stroke', status: 'Active', date: 'Dec 20, 2024' },
+    { id: 2, name: 'Liam Parker', email: 'liam@email.com', phone: '(555) 234-5678', disease: 'Arrhythmia', status: 'Active', date: 'Dec 19, 2024' },
+    { id: 3, name: 'Jackson Mitchell', email: 'jackson@email.com', phone: '(555) 345-6789', disease: 'Viral Fever', status: 'Active', date: 'Dec 18, 2024' },
   ]);
 
-  // Make sure specialization is here!
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    specialization: "",
-    gender: "Male",
-    age: "",
+    name: '', email: '', phone: '', disease: ''
   });
 
-  // --- 2. HANDLERS ---
-  const handleRegister = (e) => {
+  const handleAddPatient = (e) => {
     e.preventDefault();
     const newPatient = {
       ...formData,
-      id: Math.random().toString(36).substr(2, 8),
-      status: "Active",
-      date: new Date().toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
+      id: patients.length + 1,
+      status: 'Active',
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     };
     setPatients([newPatient, ...patients]);
     setShowModal(false);
-    // Reset Form
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      specialization: "",
-      gender: "Male",
-      age: "",
-    });
+    setFormData({ name: '', email: '', phone: '', disease: '' });
   };
 
-  // --- 3. SEARCH LOGIC ---
-  const filteredPatients = patients.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.phone.includes(searchTerm),
+  const filteredPatients = patients.filter(p =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="dashboard-layout">
-      <Sidebar />
-      <main className="main-content">
-        <header className="content-header">
-          <div>
-            <h1>Patients Management</h1>
-            <p>Manage and monitor all patient records</p>
+    <>
+      <div className="page-header">
+        <div className="header-stats">
+          <div className="header-stat">
+            <span className="stat-number">{patients.length}</span>
+            <span className="stat-label">Total Patients</span>
           </div>
-          <button className="add-doctor-btn" onClick={() => setShowModal(true)}>
-            <span className="material-symbols-outlined">person_add</span>{" "}
+          <div className="header-stat">
+            <span className="stat-number">+{patients.filter(p => p.date.includes('Dec')).length}</span>
+            <span className="stat-label">This Month</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="filter-bar">
+        <div className="search-bar">
+          <span className="material-symbols-outlined">search</span>
+          <input
+            type="text"
+            placeholder="Search by name, email, or phone..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <span className="clear-search" onClick={() => setSearchTerm('')}>
+              <span className="material-symbols-outlined">close</span>
+            </span>
+          )}
+        </div>
+        <div className="filter-actions">
+          <select className="filter-select">
+            <option>All Status</option>
+            <option>Active</option>
+            <option>Inactive</option>
+            <option>Discharged</option>
+          </select>
+          <button className="add-btn" onClick={() => setShowModal(true)}>
+            <span className="material-symbols-outlined">person_add</span>
             Register Patient
           </button>
-        </header>
-
-        {/* STATS CARDS */}
-        <section className="stats-grid">
-          <div className="stat-card green">
-            <div className="stat-info">
-              <p>Total Patients</p>
-              <h3>{patients.length}</h3>
-            </div>
-            <span className="material-symbols-outlined">group</span>
-          </div>
-          <div className="stat-card blue">
-            <div className="stat-info">
-              <p>Active Today</p>
-              <h3>2</h3>
-            </div>
-            <span className="material-symbols-outlined">today</span>
-          </div>
-          <div className="stat-card purple">
-            <div className="stat-info">
-              <p>New This Month</p>
-              <h3>1</h3>
-            </div>
-            <span className="material-symbols-outlined">person_add</span>
-          </div>
-          <div className="stat-card orange">
-            <div className="stat-info">
-              <p>Appointments</p>
-              <h3>5</h3>
-            </div>
-            <span className="material-symbols-outlined">event</span>
-          </div>
-        </section>
-
-        {/* SEARCH BAR */}
-        <section className="filter-bar">
-          <div className="search-box">
-            <span className="material-symbols-outlined">search</span>
-            <input
-              type="text"
-              placeholder="Search by name, email, or phone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </section>
-
-        {/* TABLE */}
-        <div className="table-container">
-          <table className="doctors-table">
-            <thead>
-              <tr>
-                <th>Patient</th>
-                <th>Contact</th>
-                <th>Account Info</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPatients.map((pat) => (
-                <tr key={pat.id}>
-                  <td>
-                    <div className="doc-info">
-                      <div className="doc-avatar">
-                        {pat.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="doc-name">{pat.name}</div>
-                        <div className="doc-id">ID: {pat.id}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="contact-cell">
-                      <span>
-                        <i className="material-symbols-outlined">mail</i>{" "}
-                        {pat.email}
-                      </span>
-                      <span>
-                        <i className="material-symbols-outlined">call</i>{" "}
-                        {pat.phone}
-                      </span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="account-info">
-                      <div>
-                        Created: <strong>{pat.date}</strong>
-                      </div>
-                      <div className="status-pill active">
-                        Status: {pat.status}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="actions">
-                    <span className="material-symbols-outlined edit">
-                      edit_square
-                    </span>
-                    <span
-                      className="material-symbols-outlined delete"
-                      onClick={() =>
-                        setPatients(patients.filter((p) => p.id !== pat.id))
-                      }
-                    >
-                      delete
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
-      </main>
+      </div>
 
-      {/* --- MODAL (FIXED 2-COLUMN) --- */}
+      <div className="table-container">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Contact Information</th>
+              <th>Diagnosis</th>
+              <th>Registered</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredPatients.map((patient) => (
+              <tr key={patient.id}>
+                <td>
+                  <div className="patient-info">
+                    <div className="patient-avatar large">
+                      {patient.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="patient-name">{patient.name}</div>
+                      <div className="patient-id">ID: #{patient.id}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div className="contact-info">
+                    <div className="contact-item">
+                      <span className="material-symbols-outlined">mail</span>
+                      {patient.email}
+                    </div>
+                    <div className="contact-item">
+                      <span className="material-symbols-outlined">call</span>
+                      {patient.phone}
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span className="diagnosis-badge">{patient.disease}</span>
+                </td>
+                <td>{patient.date}</td>
+                <td>
+                  <span className={`status-badge status-${patient.status.toLowerCase()}`}>
+                    <span className="status-dot"></span>
+                    {patient.status}
+                  </span>
+                </td>
+                <td className="actions-cell">
+                  <button className="action-btn edit">
+                    <span className="material-symbols-outlined">edit</span>
+                  </button>
+                  <button
+                    className="action-btn delete"
+                    onClick={() => setPatients(patients.filter(p => p.id !== patient.id))}
+                  >
+                    <span className="material-symbols-outlined">delete</span>
+                  </button>
+                  <button className="action-btn view">
+                    <span className="material-symbols-outlined">visibility</span>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
+              <div className="modal-header-icon">
+                <span className="material-symbols-outlined">person_add</span>
+              </div>
               <h2>Register New Patient</h2>
-              <span
-                className="material-symbols-outlined close-icon"
-                onClick={() => setShowModal(false)}
-              >
-                close
-              </span>
+              <button className="modal-close" onClick={() => setShowModal(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
             </div>
-            <form onSubmit={handleRegister} className="modal-form">
-              {/* ROW 1: Name and Specialization */}
-              <div className="form-group">
-                <label>Full Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                />
+            <form onSubmit={handleAddPatient} className="modal-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter patient's full name"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Disease / Condition</label>
+                  <input
+                    type="text"
+                    placeholder="Enter diagnosis"
+                    required
+                    value={formData.disease}
+                    onChange={(e) => setFormData({ ...formData, disease: e.target.value })}
+                  />
+                </div>
               </div>
-              <div className="form-group">
-                <label>Specialization *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Cardiology"
-                  value={formData.specialization}
-                  onChange={(e) =>
-                    setFormData({ ...formData, specialization: e.target.value })
-                  }
-                />
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="patient@example.com"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Phone Number</label>
+                  <input
+                    type="tel"
+                    placeholder="+1 (555) 000-0000"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
               </div>
-
-              {/* ROW 2: Email and Phone */}
-              <div className="form-group">
-                <label>Email Address *</label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
-              </div>
-              <div className="form-group">
-                <label>Phone Number *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                />
-              </div>
-
-              {/* ROW 3: BUTTONS (Spans full width) */}
-              <div className="modal-actions full-width">
-                <button
-                  type="button"
-                  className="cancel-btn"
-                  onClick={() => setShowModal(false)}
-                >
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setShowModal(false)}>
                   Cancel
                 </button>
                 <button type="submit" className="save-btn">
-                  Add Doctor
+                  <span className="material-symbols-outlined">save</span>
+                  Register Patient
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
