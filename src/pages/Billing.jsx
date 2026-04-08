@@ -1,25 +1,38 @@
 import React, { useState } from 'react';
 
 const Billing = () => {
+  const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [billingRecords, setBillingRecords] = useState([
-    { id: 1, patient: 'Sophie Bennett', service: 'Consultation', amount: '$250', date: 'Dec 20, 2024', status: 'Paid' },
-    { id: 2, patient: 'Liam Parker', service: 'Surgery', amount: '$5,000', date: 'Dec 19, 2024', status: 'Pending' },
-    { id: 3, patient: 'Jackson Mitchell', service: 'Lab Tests', amount: '$180', date: 'Dec 18, 2024', status: 'Paid' },
-    { id: 4, patient: 'Emma Wilson', service: 'Emergency', amount: '$850', date: 'Dec 17, 2024', status: 'Pending' },
+    { id: 1, patient: 'Sophie Bennett', service: 'Consultation', amount: 250, date: '2024-12-20', status: 'Paid' },
+    { id: 2, patient: 'Liam Parker', service: 'Surgery', amount: 5000, date: '2024-12-19', status: 'Pending' },
+    { id: 3, patient: 'Jackson Mitchell', service: 'Lab Tests', amount: 180, date: '2024-12-18', status: 'Paid' },
+    { id: 4, patient: 'Emma Wilson', service: 'Emergency', amount: 850, date: '2024-12-17', status: 'Pending' },
   ]);
 
   const [formData, setFormData] = useState({
-    patient: '', service: '', amount: '', date: '', status: ''
+    patient: '', service: '', amount: '', date: '', status: 'Pending'
   });
+
+  const handleAddInvoice = (e) => {
+    e.preventDefault();
+    const newRecord = {
+      id: billingRecords.length + 1,
+      ...formData,
+      amount: parseFloat(formData.amount)
+    };
+    setBillingRecords([newRecord, ...billingRecords]);
+    setShowAddModal(false);
+    setFormData({ patient: '', service: '', amount: '', date: '', status: 'Pending' });
+  };
 
   const handleEditRecord = (record) => {
     setEditingRecord(record);
     setFormData({
       patient: record.patient,
       service: record.service,
-      amount: record.amount,
+      amount: record.amount.toString(),
       date: record.date,
       status: record.status
     });
@@ -30,25 +43,36 @@ const Billing = () => {
     e.preventDefault();
     const updatedRecords = billingRecords.map(r => 
       r.id === editingRecord.id 
-        ? { ...r, ...formData }
+        ? { ...r, ...formData, amount: parseFloat(formData.amount) }
         : r
     );
     setBillingRecords(updatedRecords);
     setShowEditModal(false);
     setEditingRecord(null);
-    setFormData({ patient: '', service: '', amount: '', date: '', status: '' });
+    setFormData({ patient: '', service: '', amount: '', date: '', status: 'Pending' });
+  };
+
+  const handleDeleteRecord = (id) => {
+    if (window.confirm('Are you sure you want to delete this invoice?')) {
+      setBillingRecords(billingRecords.filter(r => r.id !== id));
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
   const totals = {
-    totalBilled: billingRecords.reduce((sum, record) => sum + parseInt(record.amount.replace('$', '').replace(',', '')), 0),
-    totalPaid: billingRecords.filter(r => r.status === 'Paid').reduce((sum, record) => sum + parseInt(record.amount.replace('$', '').replace(',', '')), 0),
-    totalPending: billingRecords.filter(r => r.status === 'Pending').reduce((sum, record) => sum + parseInt(record.amount.replace('$', '').replace(',', '')), 0),
+    totalBilled: billingRecords.reduce((sum, record) => sum + record.amount, 0),
+    totalPaid: billingRecords.filter(r => r.status === 'Paid').reduce((sum, record) => sum + record.amount, 0),
+    totalPending: billingRecords.filter(r => r.status === 'Pending').reduce((sum, record) => sum + record.amount, 0),
   };
 
   return (
     <>
       <div className="metrics-grid">
-        <div className="metric-card gradient-green">
+        <div className="metric-card">
           <div className="metric-icon">
             <span className="material-symbols-outlined">attach_money</span>
           </div>
@@ -57,7 +81,7 @@ const Billing = () => {
             <span className="metric-label">Total Billed</span>
           </div>
         </div>
-        <div className="metric-card gradient-blue">
+        <div className="metric-card">
           <div className="metric-icon">
             <span className="material-symbols-outlined">paid</span>
           </div>
@@ -66,7 +90,7 @@ const Billing = () => {
             <span className="metric-label">Total Collected</span>
           </div>
         </div>
-        <div className="metric-card gradient-orange">
+        <div className="metric-card">
           <div className="metric-icon">
             <span className="material-symbols-outlined">hourglass_empty</span>
           </div>
@@ -75,7 +99,7 @@ const Billing = () => {
             <span className="metric-label">Pending Payment</span>
           </div>
         </div>
-        <div className="metric-card gradient-purple">
+        <div className="metric-card">
           <div className="metric-icon">
             <span className="material-symbols-outlined">receipt</span>
           </div>
@@ -92,7 +116,7 @@ const Billing = () => {
             <h3>Billing History</h3>
             <p>View and manage all patient invoices</p>
           </div>
-          <button className="add-btn" onClick={() => alert('Create Invoice feature coming soon!')}>
+          <button className="add-btn" onClick={() => setShowAddModal(true)}>
             <span className="material-symbols-outlined">receipt_long</span>
             Create Invoice
           </button>
@@ -115,8 +139,8 @@ const Billing = () => {
                 <td>#INV-{String(record.id).padStart(4, '0')}</td>
                 <td>{record.patient}</td>
                 <td>{record.service}</td>
-                <td>{record.date}</td>
-                <td className="amount-cell">{record.amount}</td>
+                <td>{formatDate(record.date)}</td>
+                <td className="amount-cell">${record.amount.toLocaleString()}</td>
                 <td>
                   <span className={`status-badge status-${record.status.toLowerCase()}`}>
                     <span className="status-dot"></span>
@@ -127,8 +151,8 @@ const Billing = () => {
                   <button className="action-btn edit" onClick={() => handleEditRecord(record)}>
                     <span className="material-symbols-outlined">edit</span>
                   </button>
-                  <button className="action-btn view">
-                    <span className="material-symbols-outlined">download</span>
+                  <button className="action-btn delete" onClick={() => handleDeleteRecord(record.id)}>
+                    <span className="material-symbols-outlined">delete</span>
                   </button>
                 </td>
               </tr>
@@ -137,7 +161,90 @@ const Billing = () => {
         </table>
       </div>
 
-      {/* Edit Billing Record Modal */}
+      {/* Create Invoice Modal */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <div className="modal-header-icon">
+                <span className="material-symbols-outlined">receipt_long</span>
+              </div>
+              <h2>Create New Invoice</h2>
+              <button className="modal-close" onClick={() => setShowAddModal(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleAddInvoice} className="modal-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Patient Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter patient name"
+                    required
+                    value={formData.patient}
+                    onChange={(e) => setFormData({ ...formData, patient: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Service</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Consultation, Surgery"
+                    required
+                    value={formData.service}
+                    onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Amount ($)</label>
+                  <input
+                    type="number"
+                    placeholder="0.00"
+                    required
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group full-width">
+                  <label>Status</label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  >
+                    <option>Pending</option>
+                    <option>Paid</option>
+                  </select>
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setShowAddModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="save-btn">
+                  <span className="material-symbols-outlined">receipt_long</span>
+                  Create Invoice
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Invoice Modal */}
       {showEditModal && editingRecord && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -173,9 +280,9 @@ const Billing = () => {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Amount</label>
+                  <label>Amount ($)</label>
                   <input
-                    type="text"
+                    type="number"
                     required
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
@@ -184,7 +291,7 @@ const Billing = () => {
                 <div className="form-group">
                   <label>Date</label>
                   <input
-                    type="text"
+                    type="date"
                     required
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
@@ -195,12 +302,11 @@ const Billing = () => {
                 <div className="form-group full-width">
                   <label>Status</label>
                   <select
-                    required
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   >
-                    <option>Paid</option>
                     <option>Pending</option>
+                    <option>Paid</option>
                   </select>
                 </div>
               </div>

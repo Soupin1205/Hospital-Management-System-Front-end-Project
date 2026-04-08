@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 const Staff = () => {
+  const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
   const [staff, setStaff] = useState([
@@ -12,8 +13,22 @@ const Staff = () => {
   ]);
 
   const [formData, setFormData] = useState({
-    name: '', role: '', department: '', email: '', phone: '', status: ''
+    name: '', role: '', department: '', email: '', phone: '', status: 'Active', joinDate: '', lastPayout: ''
   });
+
+  const departments = ['Cardiology', 'Neurology', 'Pediatrics', 'Orthopedics', 'Dermatology', 'Psychiatry', 'Radiology', 'Emergency'];
+
+  const handleAddStaff = (e) => {
+    e.preventDefault();
+    const newStaff = {
+      id: staff.length + 1,
+      ...formData,
+      lastPayout: formData.lastPayout ? `$${formData.lastPayout}` : '$0',
+    };
+    setStaff([...staff, newStaff]);
+    setShowAddModal(false);
+    setFormData({ name: '', role: '', department: '', email: '', phone: '', status: 'Active', joinDate: '', lastPayout: '' });
+  };
 
   const handleEditStaff = (member) => {
     setEditingStaff(member);
@@ -23,7 +38,9 @@ const Staff = () => {
       department: member.department,
       email: member.email,
       phone: member.phone,
-      status: member.status
+      status: member.status,
+      joinDate: member.joinDate,
+      lastPayout: member.lastPayout.replace('$', '')
     });
     setShowEditModal(true);
   };
@@ -32,23 +49,27 @@ const Staff = () => {
     e.preventDefault();
     const updatedStaff = staff.map(m => 
       m.id === editingStaff.id 
-        ? { ...m, ...formData }
+        ? { ...m, ...formData, lastPayout: `$${formData.lastPayout}` }
         : m
     );
     setStaff(updatedStaff);
     setShowEditModal(false);
     setEditingStaff(null);
-    setFormData({ name: '', role: '', department: '', email: '', phone: '', status: '' });
+    setFormData({ name: '', role: '', department: '', email: '', phone: '', status: 'Active', joinDate: '', lastPayout: '' });
+  };
+
+  const handleDeleteStaff = (id) => {
+    if (window.confirm('Are you sure you want to delete this staff member?')) {
+      setStaff(staff.filter(m => m.id !== id));
+    }
   };
 
   const metrics = {
     totalStaff: staff.length,
     activeStaff: staff.filter(s => s.status === 'Active').length,
     departments: [...new Set(staff.map(s => s.department))].length,
-    totalPayout: '$48,293'
+    totalPayout: staff.reduce((sum, s) => sum + parseInt(s.lastPayout.replace('$', '').replace(',', '')), 0)
   };
-
-  const departments = [...new Set(staff.map(s => s.department))];
 
   return (
     <>
@@ -85,7 +106,7 @@ const Staff = () => {
             <span className="material-symbols-outlined">payments</span>
           </div>
           <div className="metric-info">
-            <span className="metric-value">{metrics.totalPayout}</span>
+            <span className="metric-value">${metrics.totalPayout.toLocaleString()}</span>
             <span className="metric-label">Total Payout</span>
           </div>
         </div>
@@ -97,7 +118,7 @@ const Staff = () => {
             <h3>Staff Overview</h3>
             <p>Manage all staff members and their information</p>
           </div>
-          <button className="add-btn" onClick={() => alert('Add Staff feature coming soon!')}>
+          <button className="add-btn" onClick={() => setShowAddModal(true)}>
             <span className="material-symbols-outlined">add</span>
             Add Staff
           </button>
@@ -142,12 +163,133 @@ const Staff = () => {
                   <button className="action-btn edit" onClick={() => handleEditStaff(member)}>
                     <span className="material-symbols-outlined">edit</span>
                   </button>
+                  <button className="action-btn delete" onClick={() => handleDeleteStaff(member.id)}>
+                    <span className="material-symbols-outlined">delete</span>
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Add Staff Modal */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <div className="modal-header-icon">
+                <span className="material-symbols-outlined">person_add</span>
+              </div>
+              <h2>Add New Staff Member</h2>
+              <button className="modal-close" onClick={() => setShowAddModal(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleAddStaff} className="modal-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter full name"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Role</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Cardiologist"
+                    required
+                    value={formData.role}
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Department</label>
+                  <select
+                    required
+                    value={formData.department}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                  >
+                    <option value="">Select Department</option>
+                    {departments.map(dept => (
+                      <option key={dept}>{dept}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Join Date</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Jan 2024"
+                    required
+                    value={formData.joinDate}
+                    onChange={(e) => setFormData({ ...formData, joinDate: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="staff@medicare.com"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Phone Number</label>
+                  <input
+                    type="tel"
+                    placeholder="+1 (555) 000-0000"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Last Payout ($)</label>
+                  <input
+                    type="number"
+                    placeholder="0"
+                    value={formData.lastPayout}
+                    onChange={(e) => setFormData({ ...formData, lastPayout: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Status</label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  >
+                    <option>Active</option>
+                    <option>Inactive</option>
+                  </select>
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setShowAddModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="save-btn">
+                  <span className="material-symbols-outlined">save</span>
+                  Add Staff Member
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Edit Staff Modal */}
       {showEditModal && editingStaff && (
@@ -197,15 +339,13 @@ const Staff = () => {
                   </select>
                 </div>
                 <div className="form-group">
-                  <label>Status</label>
-                  <select
+                  <label>Join Date</label>
+                  <input
+                    type="text"
                     required
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  >
-                    <option>Active</option>
-                    <option>Inactive</option>
-                  </select>
+                    value={formData.joinDate}
+                    onChange={(e) => setFormData({ ...formData, joinDate: e.target.value })}
+                  />
                 </div>
               </div>
               <div className="form-row">
@@ -226,6 +366,26 @@ const Staff = () => {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Last Payout ($)</label>
+                  <input
+                    type="number"
+                    value={formData.lastPayout}
+                    onChange={(e) => setFormData({ ...formData, lastPayout: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Status</label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  >
+                    <option>Active</option>
+                    <option>Inactive</option>
+                  </select>
                 </div>
               </div>
               <div className="modal-actions">

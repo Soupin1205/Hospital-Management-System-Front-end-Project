@@ -19,25 +19,13 @@ const Dashboard = () => {
     { name: 'Emma Wilson', id: '#P-1004', disease: 'Pneumonia', date: 'Dec 17, 2024', status: 'Inactive' },
   ];
 
-  // Monthly data (Jan-Dec)
   const monthlyData = [55, 35, 75, 90, 45, 80, 70, 40, 60, 50, 85, 95];
   const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-
-  // Weekly data (last 12 weeks)
   const weeklyData = [65, 72, 68, 85, 90, 78, 82, 88, 92, 86, 79, 84];
   const weeks = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10', 'W11', 'W12'];
 
   const chartData = chartView === 'monthly' ? monthlyData : weeklyData;
   const chartLabels = chartView === 'monthly' ? months : weeks;
-
-  // Department Performance Data
-  const departments = [
-    { name: 'Cardiology', availability: 85, staff: 12, patients: 45 },
-    { name: 'Neurology', availability: 92, staff: 8, patients: 32 },
-    { name: 'Pediatrics', availability: 78, staff: 10, patients: 38 },
-    { name: 'Orthopedics', availability: 88, staff: 6, patients: 28 },
-    { name: 'Emergency', availability: 95, staff: 15, patients: 56 },
-  ];
 
   const handleAddPatient = (e) => {
     e.preventDefault();
@@ -105,39 +93,49 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Department Performance - Replaces System Health */}
-        <div className="data-panel department-panel">
+        {/* Quick Stats Panel - Replaces Department Performance */}
+        <div className="data-panel quick-stats-panel">
           <div className="panel-header">
-            <h3>Department Performance</h3>
-            <span className="health-badge">Live</span>
+            <h3>Quick Statistics</h3>
+            <span className="health-badge">Today</span>
           </div>
-          <div className="department-list">
-            {departments.map((dept, index) => (
-              <div key={index} className="department-item">
-                <div className="dept-info">
-                  <span className="dept-name">{dept.name}</span>
-                  <div className="dept-stats">
-                    <span className="dept-stat">
-                      <span className="material-symbols-outlined">groups</span>
-                      {dept.staff} staff
-                    </span>
-                    <span className="dept-stat">
-                      <span className="material-symbols-outlined">patients</span>
-                      {dept.patients} patients
-                    </span>
-                  </div>
-                </div>
-                <div className="dept-availability">
-                  <div className="availability-bar">
-                    <div 
-                      className="availability-fill" 
-                      style={{ width: `${dept.availability}%` }}
-                    ></div>
-                  </div>
-                  <span className="availability-percent">{dept.availability}%</span>
-                </div>
+          <div className="quick-stats-grid">
+            <div className="quick-stat-item">
+              <div className="quick-stat-icon">
+                <span className="material-symbols-outlined">schedule</span>
               </div>
-            ))}
+              <div className="quick-stat-info">
+                <span className="quick-stat-value">48</span>
+                <span className="quick-stat-label">Appointments Today</span>
+              </div>
+            </div>
+            <div className="quick-stat-item">
+              <div className="quick-stat-icon">
+                <span className="material-symbols-outlined">bed</span>
+              </div>
+              <div className="quick-stat-info">
+                <span className="quick-stat-value">124</span>
+                <span className="quick-stat-label">Available Beds</span>
+              </div>
+            </div>
+            <div className="quick-stat-item">
+              <div className="quick-stat-icon">
+                <span className="material-symbols-outlined">pending_actions</span>
+              </div>
+              <div className="quick-stat-info">
+                <span className="quick-stat-value">12</span>
+                <span className="quick-stat-label">Pending Approvals</span>
+              </div>
+            </div>
+            <div className="quick-stat-item">
+              <div className="quick-stat-icon">
+                <span className="material-symbols-outlined">medication</span>
+              </div>
+              <div className="quick-stat-info">
+                <span className="quick-stat-value">86</span>
+                <span className="quick-stat-label">Active Prescriptions</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -172,7 +170,7 @@ const Dashboard = () => {
                     {patient.name}
                   </div>
                 </td>
-                <td>{patient.id}</td>
+                <td className="patient-id-cell">{patient.id}</td>
                 <td>{patient.disease}</td>
                 <td>{patient.date}</td>
                 <td>
