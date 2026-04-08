@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const Dashboard = () => {
+  const [chartView, setChartView] = useState('monthly');
+  const [showPatientModal, setShowPatientModal] = useState(false);
+  const [newPatient, setNewPatient] = useState({ name: '', disease: '', email: '', phone: '' });
+
   const stats = [
     { label: 'Total Patients', value: '2,847', icon: 'people', change: '+12%', color: 'cyan' },
     { label: 'Appointments Today', value: '48', icon: 'event', change: '+8%', color: 'blue' },
@@ -12,11 +16,35 @@ const Dashboard = () => {
     { name: 'Sophie Bennett', id: '#P-1001', disease: 'Stroke', date: 'Dec 20, 2024', status: 'Active' },
     { name: 'Liam Parker', id: '#P-1002', disease: 'Arrhythmia', date: 'Dec 19, 2024', status: 'Active' },
     { name: 'Jackson Mitchell', id: '#P-1003', disease: 'Viral Fever', date: 'Dec 18, 2024', status: 'Active' },
-    { name: 'Emma Wilson', id: '#P-1004', disease: 'Pneumonia', date: 'Dec 17, 2024', status: 'Active' },
+    { name: 'Emma Wilson', id: '#P-1004', disease: 'Pneumonia', date: 'Dec 17, 2024', status: 'Inactive' },
   ];
 
-  const chartData = [55, 35, 75, 90, 45, 80, 70, 40, 60, 50, 85, 95];
+  // Monthly data (Jan-Dec)
+  const monthlyData = [55, 35, 75, 90, 45, 80, 70, 40, 60, 50, 85, 95];
   const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+  // Weekly data (last 12 weeks)
+  const weeklyData = [65, 72, 68, 85, 90, 78, 82, 88, 92, 86, 79, 84];
+  const weeks = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10', 'W11', 'W12'];
+
+  const chartData = chartView === 'monthly' ? monthlyData : weeklyData;
+  const chartLabels = chartView === 'monthly' ? months : weeks;
+
+  // Department Performance Data
+  const departments = [
+    { name: 'Cardiology', availability: 85, staff: 12, patients: 45 },
+    { name: 'Neurology', availability: 92, staff: 8, patients: 32 },
+    { name: 'Pediatrics', availability: 78, staff: 10, patients: 38 },
+    { name: 'Orthopedics', availability: 88, staff: 6, patients: 28 },
+    { name: 'Emergency', availability: 95, staff: 15, patients: 56 },
+  ];
+
+  const handleAddPatient = (e) => {
+    e.preventDefault();
+    alert('Patient added successfully!');
+    setShowPatientModal(false);
+    setNewPatient({ name: '', disease: '', email: '', phone: '' });
+  };
 
   return (
     <>
@@ -43,12 +71,21 @@ const Dashboard = () => {
           <div className="panel-header">
             <div>
               <h3>Patient Admissions Overview</h3>
-              <p>Monthly admission trends for 2024</p>
+              <p>Admission trends for 2024</p>
             </div>
             <div className="pill-filters">
-              <span className="active">Yearly</span>
-              <span>Monthly</span>
-              <span>Weekly</span>
+              <span 
+                className={chartView === 'weekly' ? 'active' : ''} 
+                onClick={() => setChartView('weekly')}
+              >
+                Weekly
+              </span>
+              <span 
+                className={chartView === 'monthly' ? 'active' : ''} 
+                onClick={() => setChartView('monthly')}
+              >
+                Monthly
+              </span>
             </div>
           </div>
           <div className="chart-container">
@@ -61,52 +98,46 @@ const Dashboard = () => {
                     </div>
                     <div className="bar bar-secondary" style={{ height: `${Math.max(height - 15, 5)}%` }}></div>
                   </div>
-                  <span className="chart-label">{months[i]}</span>
+                  <span className="chart-label">{chartLabels[i]}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="data-panel health-panel">
+        {/* Department Performance - Replaces System Health */}
+        <div className="data-panel department-panel">
           <div className="panel-header">
-            <h3>System Health</h3>
+            <h3>Department Performance</h3>
             <span className="health-badge">Live</span>
           </div>
-          <div className="health-metrics">
-            <div className="circular-progress">
-              <svg viewBox="0 0 100 100">
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#00f2ff' }} />
-                    <stop offset="100%" style={{ stopColor: '#3b82f6' }} />
-                  </linearGradient>
-                </defs>
-                <circle cx="50" cy="50" r="45" className="progress-bg"/>
-                <circle cx="50" cy="50" r="45" className="progress-fill" strokeDasharray="283" strokeDashoffset="42"/>
-              </svg>
-              <div className="progress-text">
-                <span className="progress-value">85%</span>
-                <span className="progress-label">Operational</span>
+          <div className="department-list">
+            {departments.map((dept, index) => (
+              <div key={index} className="department-item">
+                <div className="dept-info">
+                  <span className="dept-name">{dept.name}</span>
+                  <div className="dept-stats">
+                    <span className="dept-stat">
+                      <span className="material-symbols-outlined">groups</span>
+                      {dept.staff} staff
+                    </span>
+                    <span className="dept-stat">
+                      <span className="material-symbols-outlined">patients</span>
+                      {dept.patients} patients
+                    </span>
+                  </div>
+                </div>
+                <div className="dept-availability">
+                  <div className="availability-bar">
+                    <div 
+                      className="availability-fill" 
+                      style={{ width: `${dept.availability}%` }}
+                    ></div>
+                  </div>
+                  <span className="availability-percent">{dept.availability}%</span>
+                </div>
               </div>
-            </div>
-            <div className="health-stats">
-              <div className="health-stat">
-                <span className="stat-dot green"></span>
-                <span>API Response</span>
-                <strong>98ms</strong>
-              </div>
-              <div className="health-stat">
-                <span className="stat-dot blue"></span>
-                <span>Uptime</span>
-                <strong>99.9%</strong>
-              </div>
-              <div className="health-stat">
-                <span className="stat-dot orange"></span>
-                <span>Active Users</span>
-                <strong>156</strong>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
@@ -117,7 +148,7 @@ const Dashboard = () => {
             <h3>Recent Patients</h3>
             <p>Latest registered patients in the system</p>
           </div>
-          <button className="add-btn">
+          <button className="add-btn" onClick={() => setShowPatientModal(true)}>
             <span className="material-symbols-outlined">add</span>
             Add Patient
           </button>
@@ -126,7 +157,7 @@ const Dashboard = () => {
           <thead>
             <tr>
               <th>Patient Name</th>
-              <th>ID</th>
+              <th>Patient ID</th>
               <th>Disease</th>
               <th>Registration Date</th>
               <th>Status</th>
@@ -145,7 +176,10 @@ const Dashboard = () => {
                 <td>{patient.disease}</td>
                 <td>{patient.date}</td>
                 <td>
-                  <span className={`status-badge status-${patient.status.toLowerCase()}`}>
+                  <span 
+                    className={`status-badge status-${patient.status.toLowerCase()}`}
+                    title={patient.status === 'Active' ? 'Currently receiving care' : 'Discharged from care'}
+                  >
                     <span className="status-dot"></span>
                     {patient.status}
                   </span>
@@ -155,6 +189,78 @@ const Dashboard = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Add Patient Modal */}
+      {showPatientModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <div className="modal-header-icon">
+                <span className="material-symbols-outlined">person_add</span>
+              </div>
+              <h2>Register New Patient</h2>
+              <button className="modal-close" onClick={() => setShowPatientModal(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleAddPatient} className="modal-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter patient's full name"
+                    required
+                    value={newPatient.name}
+                    onChange={(e) => setNewPatient({ ...newPatient, name: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Disease / Condition</label>
+                  <input
+                    type="text"
+                    placeholder="Enter diagnosis"
+                    required
+                    value={newPatient.disease}
+                    onChange={(e) => setNewPatient({ ...newPatient, disease: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="patient@example.com"
+                    required
+                    value={newPatient.email}
+                    onChange={(e) => setNewPatient({ ...newPatient, email: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Phone Number</label>
+                  <input
+                    type="tel"
+                    placeholder="+1 (555) 000-0000"
+                    required
+                    value={newPatient.phone}
+                    onChange={(e) => setNewPatient({ ...newPatient, phone: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setShowPatientModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="save-btn">
+                  <span className="material-symbols-outlined">save</span>
+                  Register Patient
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 };

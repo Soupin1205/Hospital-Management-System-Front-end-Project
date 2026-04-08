@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 import '../styles/components.css';
@@ -6,6 +6,14 @@ import '../styles/components.css';
 const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [greeting, setGreeting] = useState('');
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting('Morning');
+    else if (hour < 18) setGreeting('Afternoon');
+    else setGreeting('Evening');
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
@@ -21,7 +29,6 @@ const Layout = () => {
     { path: '/appointments', icon: 'calendar_month', label: 'Appointments' },
     { path: '/staff', icon: 'group', label: 'Staff' },
     { path: '/billing', icon: 'payments', label: 'Billing' },
-    { path: '/settings', icon: 'settings', label: 'Settings' },
   ];
 
   return (
@@ -57,8 +64,8 @@ const Layout = () => {
       <main className="main-content">
         <div className="top-bar">
           <div className="page-title">
-            <h1>Welcome back, Admin</h1>
-            <p>Here's what's happening with your healthcare system today</p>
+            <h1>Good {greeting}, Administrator.</h1>
+            <p>Here is your system overview.</p>
           </div>
           <div className="header-actions">
             <ThemeToggle />
@@ -68,7 +75,7 @@ const Layout = () => {
                 <div className="online-dot"></div>
               </div>
               <div className="admin-info">
-                <span className="admin-name">Admin User</span>
+                <span className="admin-name">Administrator</span>
                 <span className="admin-role">System Administrator</span>
               </div>
             </div>

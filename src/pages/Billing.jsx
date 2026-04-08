@@ -1,12 +1,43 @@
 import React, { useState } from 'react';
 
 const Billing = () => {
-  const [billingRecords] = useState([
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [billingRecords, setBillingRecords] = useState([
     { id: 1, patient: 'Sophie Bennett', service: 'Consultation', amount: '$250', date: 'Dec 20, 2024', status: 'Paid' },
     { id: 2, patient: 'Liam Parker', service: 'Surgery', amount: '$5,000', date: 'Dec 19, 2024', status: 'Pending' },
     { id: 3, patient: 'Jackson Mitchell', service: 'Lab Tests', amount: '$180', date: 'Dec 18, 2024', status: 'Paid' },
     { id: 4, patient: 'Emma Wilson', service: 'Emergency', amount: '$850', date: 'Dec 17, 2024', status: 'Pending' },
   ]);
+
+  const [formData, setFormData] = useState({
+    patient: '', service: '', amount: '', date: '', status: ''
+  });
+
+  const handleEditRecord = (record) => {
+    setEditingRecord(record);
+    setFormData({
+      patient: record.patient,
+      service: record.service,
+      amount: record.amount,
+      date: record.date,
+      status: record.status
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateRecord = (e) => {
+    e.preventDefault();
+    const updatedRecords = billingRecords.map(r => 
+      r.id === editingRecord.id 
+        ? { ...r, ...formData }
+        : r
+    );
+    setBillingRecords(updatedRecords);
+    setShowEditModal(false);
+    setEditingRecord(null);
+    setFormData({ patient: '', service: '', amount: '', date: '', status: '' });
+  };
 
   const totals = {
     totalBilled: billingRecords.reduce((sum, record) => sum + parseInt(record.amount.replace('$', '').replace(',', '')), 0),
@@ -61,7 +92,7 @@ const Billing = () => {
             <h3>Billing History</h3>
             <p>View and manage all patient invoices</p>
           </div>
-          <button className="add-btn">
+          <button className="add-btn" onClick={() => alert('Create Invoice feature coming soon!')}>
             <span className="material-symbols-outlined">receipt_long</span>
             Create Invoice
           </button>
@@ -93,10 +124,10 @@ const Billing = () => {
                   </span>
                 </td>
                 <td className="actions-cell">
-                  <button className="action-btn view">
-                    <span className="material-symbols-outlined">visibility</span>
+                  <button className="action-btn edit" onClick={() => handleEditRecord(record)}>
+                    <span className="material-symbols-outlined">edit</span>
                   </button>
-                  <button className="action-btn edit">
+                  <button className="action-btn view">
                     <span className="material-symbols-outlined">download</span>
                   </button>
                 </td>
@@ -105,6 +136,87 @@ const Billing = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Edit Billing Record Modal */}
+      {showEditModal && editingRecord && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <div className="modal-header-icon">
+                <span className="material-symbols-outlined">edit</span>
+              </div>
+              <h2>Edit Invoice</h2>
+              <button className="modal-close" onClick={() => setShowEditModal(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleUpdateRecord} className="modal-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Patient Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.patient}
+                    onChange={(e) => setFormData({ ...formData, patient: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Service</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.service}
+                    onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Amount</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Date</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group full-width">
+                  <label>Status</label>
+                  <select
+                    required
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  >
+                    <option>Paid</option>
+                    <option>Pending</option>
+                  </select>
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setShowEditModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="save-btn">
+                  <span className="material-symbols-outlined">save</span>
+                  Update Invoice
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 };
